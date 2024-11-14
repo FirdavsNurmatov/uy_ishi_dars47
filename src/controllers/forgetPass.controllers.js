@@ -2,6 +2,9 @@ import jwt from "jsonwebtoken";
 import { User } from "../modules/index.js";
 import { sendMail } from "../helpers/mail.js";
 import { errorMessages, logger, statusCodes } from "../utils/index.js";
+import { config } from "dotenv";
+
+config();
 
 export const forgetPasswordController = async (req, res, next) => {
   try {
@@ -18,13 +21,9 @@ export const forgetPasswordController = async (req, res, next) => {
       sub: email,
     };
 
-    const token = jwt.sign(
-      payload,
-      process.env.JWT_FORGET_PASSWORD_SECRET,
-      {
-        expiresIn: process.env.JWT_FORGET_PASSWORD_EXPIRES_IN,
-      }
-    );
+    const token = jwt.sign(payload, process.env.JWT_FORGET_PASSWORD_SECRET, {
+      expiresIn: process.env.JWT_FORGET_PASSWORD_EXPIRES_IN,
+    });
 
     await sendMail(
       email,
@@ -32,7 +31,7 @@ export const forgetPasswordController = async (req, res, next) => {
       `this is your password link: http://localhost:3000/api/v1/forget/password ${token}`
     );
 
-    res.send("open your email!")
+    res.send("open your email!");
   } catch (error) {
     logger.error(error);
     next(new ApiError(error.statusCode, error.message));
